@@ -28,9 +28,8 @@ Usage: (most of the options have valid default values this is an extended exampl
     --random_state 3407 --use_rslora --per_device_train_batch_size 4 --gradient_accumulation_steps 8 \
     --warmup_steps 5 --max_steps 400 --learning_rate 2e-6 --logging_steps 1 --optim "adamw_8bit" \
     --weight_decay 0.005 --lr_scheduler_type "linear" --seed 3407 --output_dir "outputs" \
-    --report_to "tensorboard" --save_model --save_path "/root/FineTuning" --quantization_method "q4_k_m" \
-    --push_model --hub_path "hf/model" --hub_token "your_hf_token" \
-    -- dataset "Conard/fortune-telling"
+    --report_to "tensorboard" --save_gguf --save_model --save_path "/root/FineTuning" --quantization "q4_k_m" \
+    --dataset "Conard/fortune-telling"
 
 To see a full list of configurable options, use:
     python unsloth-cli.py --help
@@ -91,13 +90,22 @@ def run(args):
 
 
     EOS_TOKEN = tokenizer.eos_token  # Must add EOS_TOKEN
+    # def formatting_prompts_func(examples):
+    #     instructions = examples["instruction"]
+    #     inputs       = examples["input"]
+    #     outputs      = examples["output"]
+    #     texts = []
+    #     for instruction, input, output in zip(instructions, inputs, outputs):
+    #         text = alpaca_prompt.format(instruction, input, output) + EOS_TOKEN
+    #         texts.append(text)
+    #     return {"text": texts}
+
     def formatting_prompts_func(examples):
-        instructions = examples["instruction"]
-        inputs       = examples["input"]
-        outputs      = examples["output"]
+        inputs  = examples["Question"]
+        outputs = examples["Response"]
         texts = []
-        for instruction, input, output in zip(instructions, inputs, outputs):
-            text = alpaca_prompt.format(instruction, input, output) + EOS_TOKEN
+        for input, output in zip(inputs, outputs):
+            text = alpaca_prompt.format(input, output) + EOS_TOKEN
             texts.append(text)
         return {"text": texts}
 
